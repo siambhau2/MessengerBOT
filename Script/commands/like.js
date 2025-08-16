@@ -15,15 +15,18 @@ module.exports.config = {
   cooldowns: 5
 };
 
+
+const ownerName = String.fromCharCode(
+  83, 105, 97, 109, 32, 66, 104, 97, 117
+); 
+
 module.exports.run = async function ({ api, event, args }) {
   const uid = args[0];
   const threadID = event.threadID;
   const senderID = event.senderID;
 
-  
   const isAdmin = ["100011254804801"].includes(senderID); 
 
-  
   if (!uid || isNaN(uid)) {
     return api.sendMessage(
       "❌ Please provide a valid Free Fire UID.\n\nExample:\n/like 2579249340",
@@ -32,7 +35,6 @@ module.exports.run = async function ({ api, event, args }) {
     );
   }
 
-  
   let data = {};
   try {
     data = JSON.parse(fs.readFileSync(path));
@@ -42,7 +44,6 @@ module.exports.run = async function ({ api, event, args }) {
 
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
-  
   if (!data[threadID]) {
     data[threadID] = {
       totalLikes: 0,
@@ -51,7 +52,6 @@ module.exports.run = async function ({ api, event, args }) {
     };
   }
 
-  
   if (data[threadID].lastReset !== today) {
     data[threadID].totalLikes = 0;
     data[threadID].users = {};
@@ -59,7 +59,6 @@ module.exports.run = async function ({ api, event, args }) {
     fs.writeFileSync(path, JSON.stringify(data, null, 2));
   }
 
-  
   if (!isAdmin) {
     const userLikes = data[threadID].users[senderID] || 0;
 
@@ -80,7 +79,6 @@ module.exports.run = async function ({ api, event, args }) {
     }
   }
 
-  
   const url = `FreeFire_Like_Api_URL`;
 
   try {
@@ -94,7 +92,7 @@ module.exports.run = async function ({ api, event, args }) {
     const given = d?.LikesGivenByAPI ?? 1;
 
     if (d?.LikesafterCommand !== undefined) {
-      
+
       if (!isAdmin) {
         data[threadID].totalLikes += 1;
         data[threadID].users[senderID] = (data[threadID].users[senderID] || 0) + 1;
@@ -112,7 +110,7 @@ module.exports.run = async function ({ api, event, args }) {
         (isAdmin
           ? `👑 Admin Access: No limit applied`
           : `🔁 Your Used Likes: ${data[threadID].users[senderID]}/2\n🔁 Group Remaining Likes: ${20 - data[threadID].totalLikes}`) +
-        `\n\n👑 Owner: Siam Bhau`;
+        `\n\n👑 Owner: ${ownerName}`; 
 
       return api.sendMessage(msg, threadID, event.messageID);
     } else {
